@@ -6,8 +6,11 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Build
+import android.net.Uri
 import android.os.Bundle
+import android.os.PowerManager
 import android.text.InputType
+import android.provider.Settings
 import android.view.Gravity
 import android.view.View
 import android.widget.Button
@@ -62,6 +65,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.changePinButton).setOnClickListener { changePin() }
         findViewById<Button>(R.id.deletePinButton).setOnClickListener { deletePin() }
         findViewById<Button>(R.id.addWhitelistAppButton).setOnClickListener { addWhitelistApp() }
+        findViewById<Button>(R.id.backgroundPermissionButton).setOnClickListener { requestBackgroundPermission() }
         findViewById<Button>(R.id.exitKioskButton).setOnClickListener { requestExitKioskMode() }
 
         appsRecyclerView.layoutManager = GridLayoutManager(this, 3)
@@ -188,7 +192,7 @@ class MainActivity : AppCompatActivity() {
         val apps = queryLaunchableApps().filter { whitelist.contains(it.packageName) }
 
         emptyStateText.visibility = if (apps.isEmpty()) View.VISIBLE else View.GONE
-        appsRecyclerView.adapter = AppShortcutAdapter(apps) { app -> requestUnlockAndLaunch(app.packageName) }
+        appsRecyclerView.adapter = AppShortcutAdapter(apps) { app -> launchWhitelistedApp(app.packageName) }
 
         whitelistContainer.removeAllViews()
         if (apps.isEmpty()) {
@@ -239,33 +243,39 @@ class MainActivity : AppCompatActivity() {
             .sortedBy { it.label.lowercase() }
     }
 
-    private fun requestUnlockAndLaunch(packageName: String) {
-        val pinHash = prefs.getString(KEY_PIN_HASH, null)
-        if (pinHash.isNullOrBlank()) {
-            launchApp(packageName)
-            return
-        }
-
-        askPin("Digite o PIN para abrir o app") { pin ->
-            if (hash(pin) == pinHash) {
-                drawerLayout.closeDrawer(Gravity.END)
-                launchApp(packageName)
-            } else {
-                toast("PIN inválido")
-            }
-        }
+    private fun launchWhitelistedApp(packageName: String) {
+        drawerLayout.closeDrawer(Gravity.END)
+        launchApp(packageName)
     }
 
     private fun launchApp(packageName: String) {
+
         val launchIntent = packageManagerRef.getLaunchIntentForPackage(packageName)
         if (launchIntent == null) {
             toast("Não foi possível abrir o app")
             return
         }
 
-        relockOnResume = false
-        stopLockTaskIfActive()
         startActivity(launchIntent)
+    }
+
+    private fun requestBackgroundPermission() {
+        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+        val packageName = packageName
+        if (powerManager.isIgnoringBatteryOptimizations(packageName)) {
+            toast("Permissão de segundo plano já concedida")
+            return
+        }
+
+        try {
+            val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                data = Uri.parse("package:$packageName")
+            }
+            startActivity(intent)
+        } catch (_: Exception) {
+            val fallback = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+            startActivity(fallback)
+        }
     }
 
     private fun requestExitKioskMode() {
