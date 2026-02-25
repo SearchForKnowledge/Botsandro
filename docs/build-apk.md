@@ -6,38 +6,60 @@
 - Java 17 configurado.
 - `adb` disponível no PATH (Android Platform-Tools).
 
-## 2) Configurar URL do painel
-Você pode definir a URL no momento do build com a propriedade `kioskUrl`.
-
-Exemplo:
-
-```bash
-./gradlew assembleDebug -PkioskUrl="https://painel.suaempresa.com"
-```
+## 2) Configuração inicial
+Neste MVP, a tela principal funciona como launcher interno por lista branca de apps.
 
 ## Comandos por sistema operacional
 ### Windows (PowerShell)
 Se aparecer erro `./gradlew não é reconhecido`, use:
 
 ```powershell
-.\gradlew.bat clean assembleDebug -PkioskUrl="https://painel.suaempresa.com"
+.\gradlew.bat clean assembleDebug
 ```
 
 ### Windows (CMD)
 ```cmd
-gradlew.bat clean assembleDebug -PkioskUrl="https://painel.suaempresa.com"
+gradlew.bat clean assembleDebug
 ```
 
 ### Linux/macOS/Git Bash
 ```bash
-./gradlew clean assembleDebug -PkioskUrl="https://painel.suaempresa.com"
+./gradlew clean assembleDebug
+```
+
+## Erro comum no Windows: `.\gradlew.bat` não reconhecido
+Quando esse erro aparece, normalmente o PowerShell não está na pasta raiz do projeto ou os arquivos do Gradle Wrapper não existem localmente.
+
+Diagnóstico rápido (PowerShell):
+
+```powershell
+pwd
+Get-ChildItem .\gradlew*
+Get-ChildItem .\gradle\wrapper
+```
+
+Resultado esperado:
+- `gradlew.bat`
+- `gradlew`
+- `gradle\wrapper\gradle-wrapper.jar`
+- `gradle\wrapper\gradle-wrapper.properties`
+
+Se faltar algo:
+1. Navegue para a raiz do projeto `Botsandro`.
+2. Rode `git pull` para atualizar.
+3. Se você baixou por ZIP, baixe novamente garantindo que os arquivos do wrapper vieram.
+
+Com tudo presente, execute:
+
+```powershell
+.\gradlew.bat clean assembleDebug
 ```
 
 ## 3) Gerar APK de teste (debug)
 Na raiz do projeto:
 
 ```bash
-./gradlew clean assembleDebug -PkioskUrl="https://painel.suaempresa.com"
+./gradlew clean assembleDebug
 ```
 
 Saída:
@@ -52,10 +74,10 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
 ## 5) Validar comportamento kiosk básico
-- App abre direto no WebView.
-- Oculta barra de status/navegação (modo imersivo).
-- Botão voltar navega no histórico web (quando existir).
-- Se a URL falhar, mostra tela de indisponibilidade.
+- App abre em launcher interno do kiosk.
+- Se não houver apps liberados, aparece estado vazio.
+- Painel lateral permite configurar PIN e lista branca.
+- Atalhos abrem somente os apps permitidos.
 
 ## 6) Gerar APK de release (produção)
 1. Criar keystore:
@@ -68,7 +90,7 @@ keytool -genkeypair -v -keystore botsandro-release.jks -alias botsandro -keyalg 
 3. Gerar APK:
 
 ```bash
-./gradlew clean assembleRelease -PkioskUrl="https://painel.suaempresa.com"
+./gradlew clean assembleRelease
 ```
 
 Saída:
