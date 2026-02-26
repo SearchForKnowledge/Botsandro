@@ -1,57 +1,203 @@
-# Botsandro Kiosk (MVP)
+Botsandro Kiosk (MVP)
 
-Projeto inicial para criar um APK de tablet em modo kiosk/lockdown para operação empresarial.
+Projeto Android em Kotlin para transformar tablets em modo kiosk corporativo (lockdown / launcher restrito).
 
-## O que já está pronto
-- App Android nativo em Kotlin.
-- Tela inicial estilo launcher interno baseada em lista branca de aplicativos.
-- Modo imersivo para esconder barra de navegação/status.
-- Tentativa de ativar `Lock Task Mode` (fixação de tela) quando o dispositivo estiver preparado como device owner.
-- Permissão de execução em segundo plano solicitada no primeiro uso (com atalho manual nas configurações).
-- PIN Admin para abrir painel de configurações e para sair do modo kiosk.
-- PIN Usuário para controlar retorno ao kiosk após abrir app da lista branca.
-- Gestão de lista branca: adicionar/remover apps permitidos e abrir somente por atalhos internos.
-- Tela vazia quando não há app na lista branca (com instrução para configuração).
+Este app pode operar como Device Owner, permitindo controle avançado via DevicePolicyManager.
 
-## Estrutura
-- `app/src/main/java/com/botsandro/kiosk/MainActivity.kt`: comportamento de kiosk (PIN admin/usuário, lista branca, lock task e permissões).
-- `app/src/main/res/layout/activity_main.xml`: launcher e painel lateral de configurações.
-- `app/src/main/AndroidManifest.xml`: permissões e configuração da atividade principal.
-- `docs/kiosk-roadmap.md`: próximos passos de segurança e operação.
+📦 O que já está implementado
 
-## Comandos por sistema operacional
-### Windows (PowerShell)
-Use o script `.bat`:
+✅ App Android nativo em Kotlin
 
-```powershell
+✅ Launcher interno baseado em lista branca
+
+✅ Modo imersivo (oculta barra de navegação e status)
+
+✅ Lock Task Mode automático (quando configurado como Device Owner)
+
+✅ Definição como HOME padrão (launcher corporativo)
+
+✅ PIN Admin:
+
+Abrir configurações
+
+Sair do modo kiosk
+
+✅ PIN Usuário:
+
+Controlar retorno ao kiosk após abrir app permitido
+
+✅ Gestão de lista branca:
+
+Adicionar apps permitidos
+
+Remover apps permitidos
+
+Aplicação automática no DevicePolicyManager
+
+✅ Solicitação de permissão para ignorar otimização de bateria
+
+✅ Compatível com atualização via adb install -r
+
+🧠 Conceitos Importantes
+Device Admin vs Device Owner
+Tipo	Nível	Pode remover via ADB?
+Device Admin comum	Médio	Sim
+Device Owner	Total (corporativo)	❌ Normalmente não
+
+Botsandro Kiosk usa Device Owner para:
+
+Definir launcher HOME padrão
+
+Configurar whitelist do LockTask
+
+Controlar modo fixado sem intervenção do usuário
+
+📂 Estrutura
+app/src/main/java/com/botsandro/kiosk/MainActivity.kt
+app/src/main/java/com/botsandro/kiosk/KioskDeviceAdminReceiver.kt
+app/src/main/res/layout/activity_main.xml
+app/src/main/AndroidManifest.xml
+🔧 Build do Projeto
+Windows (PowerShell)
 .\gradlew.bat clean assembleDebug
-```
-
-### Windows (Git Bash)
-```bash
+Git Bash / Linux / macOS
 ./gradlew clean assembleDebug
-```
 
-### Linux/macOS
-```bash
-./gradlew clean assembleDebug
-```
+APK gerado em:
 
-## Passo a passo para gerar o APK de teste (debug)
-1. Instalar Android SDK + Android Build Tools (via Android Studio).
-2. No terminal da raiz do projeto, gerar o build:
-   ```bash
-   ./gradlew clean assembleDebug
-   ```
-3. APK de saída:
-   - `app/build/outputs/apk/debug/app-debug.apk`
-4. Instalar no tablet conectado por USB:
-   ```bash
-   adb install -r app/build/outputs/apk/debug/app-debug.apk
-   ```
-5. Abrir o app `Botsandro Kiosk` no tablet e validar fluxo completo (PINs + lista branca + retorno ao kiosk).
+app/build/outputs/apk/debug/app-debug.apk
+📲 Instalação no Tablet
+Instalar / Atualizar APK (RECOMENDADO)
+adb install -r app/build/outputs/apk/debug/app-debug.apk
 
-## Limitações importantes do Android (kiosk)
-- A mensagem de fixação de tela (*screen pinning*) é do sistema Android e não pode ser customizada/removida por app comum.
-- Bloquear totalmente notificações e central de configurações rápidas exige modo Device Owner + políticas do `DevicePolicyManager`.
-- Para manter outro app “fixado” fora do seu app de kiosk em todos os cenários, é necessário provisionamento corporativo (Device Owner/MDM).
+⚠️ Sempre prefira -r (reinstalar) para manter o Device Owner.
+
+🔐 Configurar como Device Owner
+
+⚠️ Só funciona em dispositivo novo ou recém-resetado (ou sem owner).
+
+1️⃣ Instalar o APK
+adb install --user 0 -r app-debug.apk
+2️⃣ Definir como Device Owner
+adb shell dpm set-device-owner --user 0 com.botsandro.kiosk.debug/com.botsandro.kiosk.KioskDeviceAdminReceiver
+
+Se usar versão release:
+
+adb shell dpm set-device-owner --user 0 com.botsandro.kiosk/com.botsandro.kiosk.KioskDeviceAdminReceiver
+🔎 Verificar se virou Device Owner
+adb shell dpm list-owners
+
+Saída esperada:
+
+1 owner:
+User  0: admin=com.botsandro.kiosk.debug/com.botsandro.kiosk.KioskDeviceAdminReceiver,DeviceOwner
+❗ Erros Comuns e Soluções
+❌ Unknown admin
+java.lang.IllegalArgumentException: Unknown admin
+Causa:
+
+Classe errada no comando.
+
+Verifique:
+adb shell dumpsys package com.botsandro.kiosk.debug | findstr KioskDeviceAdminReceiver
+
+Use exatamente o nome que aparecer.
+
+❌ DELETE_FAILED_DEVICE_POLICY_MANAGER
+Failure [DELETE_FAILED_DEVICE_POLICY_MANAGER]
+Causa:
+
+App está como Device Owner.
+
+Solução:
+
+NÃO desinstalar
+
+Usar apenas:
+
+adb install -r app-debug.apk
+
+Se realmente precisar remover → Factory Reset necessário
+
+❌ Attempt to remove non-test admin
+SecurityException: Attempt to remove non-test admin
+Significado:
+
+Seu app é Device Owner real.
+Android não permite remover via ADB.
+
+Solução:
+
+Factory Reset do dispositivo.
+
+❌ Não consegue set-device-owner novamente
+
+Se aparecer erro após já ter configurado antes:
+
+O Android só permite 1 Device Owner.
+
+Se já houve provisionamento anterior, pode exigir reset.
+
+🔄 Atualização Segura do APK
+
+Sempre use:
+
+adb install -r app-debug.apk
+
+Nunca use:
+
+adb uninstall com.botsandro.kiosk.debug
+
+Se desinstalar, pode:
+
+Perder owner
+
+Ficar preso sem conseguir reinstalar como owner
+
+Exigir reset
+
+🏗 Fluxo Correto para Produção
+
+Definir package final (evitar .debug)
+
+Resetar dispositivo
+
+Instalar APK final
+
+Rodar:
+
+adb shell dpm set-device-owner --user 0 com.botsandro.kiosk/com.botsandro.kiosk.KioskDeviceAdminReceiver
+
+Nunca mais desinstalar — apenas atualizar
+
+🛡 Limitações do Android (Importante)
+
+Não é possível remover mensagem de fixação padrão do Android
+
+Não é possível remover Device Owner via ADB em produção
+
+Notificações e quick settings só são totalmente controláveis com Device Owner
+
+Provisionamento completo corporativo pode exigir QR provisioning (Android Enterprise)
+
+🚀 Roadmap Futuro
+
+Bloqueio de barra de notificações totalmente via política
+
+Bloqueio de power menu
+
+Bloqueio de USB debugging
+
+Remote config
+
+Provisionamento via QR Code Android Enterprise
+
+Build release assinado com keystore empresarial
+
+📌 Resumo Final
+Cenário	O que fazer
+Atualizar app	adb install -r
+Erro DELETE_FAILED_DEVICE_POLICY_MANAGER	Não desinstalar
+Quer trocar package	Factory reset
+Unknown admin	Conferir nome via dumpsys
+Já é owner	Não rodar set-device-owner de novo
