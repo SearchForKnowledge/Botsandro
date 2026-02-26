@@ -1,33 +1,40 @@
-# Roadmap de evolução do kiosk
+# Roadmap de evolução do Botsandro Kiosk
 
-## Fase 1 (MVP técnico)
-- [x] APK com WebView full screen.
-- [x] Modo imersivo para reduzir fuga de tela.
-- [x] Estrutura pronta para lock task.
-- [x] Tela offline amigável (sem internet).
-- [ ] Endpoint de heartbeat para monitorar status do tablet.
+## Fase 1 — MVP atual (concluído)
+- [x] Launcher interno com grade de apps da lista branca.
+- [x] Painel lateral de configurações protegido por PIN Admin.
+- [x] PIN Usuário para controlar retorno ao kiosk após app liberado.
+- [x] Solicitação inicial de permissão de execução em segundo plano.
+- [x] Modo imersivo e tentativa de `startLockTask()`.
+- [x] Ações básicas de whitelist: adicionar/remover e abrir app permitido.
 
-## Fase 2 (controle corporativo)
-- [ ] Provisionar tablet como **Device Owner**.
-- [ ] Implementar `DevicePolicyManager` para bloquear configurações.
-- [ ] Definir app como launcher padrão (home custom).
-- [ ] Whitelist de apps permitidos (somente kiosk + utilitários necessários).
+## Fase 2 — Estabilização de campo
+- [ ] Persistir mais estado operacional (último app aberto, horário de retorno, tentativas de PIN).
+- [ ] Melhorar UX de PIN (teclado numérico dedicado, máscara, limite de tentativas).
+- [ ] Melhorar logs para suporte (eventos de abertura, falha de lock task, falha de launch).
+- [ ] Criar testes instrumentados para fluxos críticos de PIN e whitelist.
 
-## Fase 3 (operações e segurança)
-- [ ] Atualização remota de URL/config via API segura.
-- [ ] Renovação automática de sessão/tokens.
-- [ ] Telemetria: online/offline, bateria, versão do app, última sincronização.
-- [ ] Gestão remota de conteúdo em caso de queda do backend.
+## Fase 3 — Lockdown corporativo real
+- [ ] Provisionar dispositivos como **Device Owner**.
+- [ ] Aplicar políticas com `DevicePolicyManager` (bloquear settings, status bar, etc.).
+- [ ] Definir o app kiosk como launcher padrão do dispositivo.
+- [ ] Gerenciar whitelist por política central (em vez de somente local).
 
-## Fase 4 (hardening)
-- [ ] TLS pinning e política de certificados.
-- [ ] Bloqueio de captura de tela quando necessário.
-- [ ] Proteção anti-tamper e assinatura de release.
-- [ ] Pipeline de CI/CD para APK/AAB com versionamento.
+## Fase 4 — Gestão remota
+- [ ] Painel web para monitorar tablets (online/offline, bateria, versão).
+- [ ] Configuração remota segura (PIN policy, whitelist e parâmetros).
+- [ ] Heartbeat periódico e fila de comandos remotos.
+- [ ] Atualização controlada do app (rollout por grupo/dispositivo).
 
-## Checklist de piloto
-- [ ] 2 modelos de tablet homologados.
-- [ ] Teste com reboot automático e retorno ao kiosk.
-- [ ] Teste de perda de rede e recuperação.
-- [ ] Teste de tentativa de saída (home, recentes, notificações, USB).
-- [ ] Documentação de suporte de campo (troca de aparelho e reprovisionamento).
+## Fase 5 — Segurança e operação contínua
+- [ ] Assinatura/release hardening e validação de integridade.
+- [ ] Política de certificados/TLS pinning para APIs críticas.
+- [ ] Telemetria e alertas operacionais.
+- [ ] CI/CD com versionamento, changelog e trilha de auditoria.
+
+## Checklist para piloto em produção
+- [ ] Homologar pelo menos 2 modelos de tablet.
+- [ ] Validar comportamento após reboot automático.
+- [ ] Testar perda de rede e recuperação.
+- [ ] Validar tentativas de fuga (home, recentes, notificações, USB).
+- [ ] Documentar procedimento de suporte e reprovisionamento.
