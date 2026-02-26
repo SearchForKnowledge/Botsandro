@@ -1,119 +1,150 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/drawerLayout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@android:color/black"
-            android:theme="@style/ThemeOverlay.MaterialComponents.ActionBar"
-            app:navigationIcon="@android:drawable/ic_menu_manage"
-            app:title="Botsandro Kiosk"
-            app:titleTextColor="@android:color/white" />
-
-        <TextView
-            android:id="@+id/emptyStateText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="24dp"
-            android:text="Nenhum app na lista branca ainda. Abra configurações para adicionar aplicativos."
-            android:visibility="gone" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/appsRecyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:padding="16dp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/settingsPanel"
-        android:layout_width="320dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="end"
-        android:background="@android:color/white"
-        android:orientation="vertical"
-        android:padding="16dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Configurações"
-            android:textStyle="bold" />
-
-        <Button
-            android:id="@+id/setPinButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Adicionar PIN" />
-
-        <Button
-            android:id="@+id/changePinButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Alterar PIN" />
-
-        <Button
-            android:id="@+id/deletePinButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Excluir PIN" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginVertical="12dp"
-            android:background="#DDDDDD" />
-
-        <Button
-            android:id="@+id/addWhitelistAppButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Adicionar app na lista branca" />
-        <Button
-            android:id="@+id/backgroundPermissionButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Permitir execução em segundo plano" />
-
-
-        <Button
-            android:id="@+id/exitKioskButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Sair do modo kiosk" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Apps permitidos" />
-
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
-
-            <LinearLayout
-                android:id="@+id/whitelistContainer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" />
-        </ScrollView>
-    </LinearLayout>
-
-</androidx.drawerlayout.widget.DrawerLayout>
+diff --git a/app/src/main/res/layout/activity_main.xml b/app/src/main/res/layout/activity_main.xml
+index c9ea37c0fba678e92f01368d500a5a3a790afc6c..7bddba8cdd7f0cda1cc7e072892a9dd23acc1c06 100644
+--- a/app/src/main/res/layout/activity_main.xml
++++ b/app/src/main/res/layout/activity_main.xml
+@@ -1,116 +1,134 @@
+-<?xml version="1.0" encoding="utf-8"?>
+ <androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:app="http://schemas.android.com/apk/res-auto"
+     android:id="@+id/drawerLayout"
+     android:layout_width="match_parent"
+     android:layout_height="match_parent">
+ 
+     <LinearLayout
+         android:layout_width="match_parent"
+         android:layout_height="match_parent"
+         android:orientation="vertical">
+ 
+         <com.google.android.material.appbar.MaterialToolbar
+             android:id="@+id/toolbar"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:backgroundTint="@android:color/black"
+             android:theme="@style/ThemeOverlay.MaterialComponents.ActionBar"
+             app:navigationIcon="@android:drawable/ic_menu_manage"
+             app:title="Botsandro Kiosk"
+             app:titleTextColor="@android:color/white" />
+ 
+         <TextView
+             android:id="@+id/emptyStateText"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:gravity="center"
+             android:padding="24dp"
+-            android:text="Nenhum app na lista branca ainda. Abra configurações para adicionar aplicativos."
++            android:text="Nenhum app na lista branca ainda. Abra configuracoes para adicionar aplicativos."
+             android:visibility="gone" />
+ 
+         <androidx.recyclerview.widget.RecyclerView
+             android:id="@+id/appsRecyclerView"
+             android:layout_width="match_parent"
+             android:layout_height="0dp"
+             android:layout_weight="1"
+             android:padding="16dp" />
+     </LinearLayout>
+ 
+     <LinearLayout
+         android:id="@+id/settingsPanel"
+         android:layout_width="320dp"
+         android:layout_height="match_parent"
+         android:layout_gravity="end"
+         android:background="@android:color/white"
+         android:orientation="vertical"
+         android:padding="16dp">
+ 
+         <TextView
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+-            android:text="Configurações"
++            android:text="Configuracoes"
+             android:textStyle="bold" />
+ 
+         <Button
+-            android:id="@+id/setPinButton"
++            android:id="@+id/setAdminPinButton"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:layout_marginTop="12dp"
+-            android:text="Adicionar PIN" />
++            android:text="Adicionar PIN Admin" />
+ 
+         <Button
+-            android:id="@+id/changePinButton"
++            android:id="@+id/changeAdminPinButton"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+-            android:text="Alterar PIN" />
++            android:text="Alterar PIN Admin" />
+ 
+         <Button
+-            android:id="@+id/deletePinButton"
++            android:id="@+id/deleteAdminPinButton"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+-            android:text="Excluir PIN" />
++            android:text="Excluir PIN Admin" />
++
++        <Button
++            android:id="@+id/setUserPinButton"
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:layout_marginTop="8dp"
++            android:text="Adicionar PIN Usuario" />
++
++        <Button
++            android:id="@+id/changeUserPinButton"
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:text="Alterar PIN Usuario" />
++
++        <Button
++            android:id="@+id/deleteUserPinButton"
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:text="Excluir PIN Usuario" />
+ 
+         <View
+             android:layout_width="match_parent"
+             android:layout_height="1dp"
+             android:layout_marginVertical="12dp"
+             android:background="#DDDDDD" />
+ 
+         <Button
+             android:id="@+id/addWhitelistAppButton"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:text="Adicionar app na lista branca" />
++
+         <Button
+             android:id="@+id/backgroundPermissionButton"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:layout_marginTop="8dp"
+-            android:text="Permitir execução em segundo plano" />
+-
++            android:text="Permitir execucao em segundo plano" />
+ 
+         <Button
+             android:id="@+id/exitKioskButton"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:layout_marginTop="12dp"
+             android:text="Sair do modo kiosk" />
+ 
+         <TextView
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_marginTop="12dp"
+             android:text="Apps permitidos" />
+ 
+         <ScrollView
+             android:layout_width="match_parent"
+             android:layout_height="0dp"
+             android:layout_weight="1">
+ 
+             <LinearLayout
+                 android:id="@+id/whitelistContainer"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:orientation="vertical" />
+         </ScrollView>
