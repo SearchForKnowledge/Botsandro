@@ -1,18 +1,15 @@
-# Como montar o APK do Botsandro Kiosk
+# Como gerar e validar o APK do Botsandro Kiosk
 
 ## 1) Pré-requisitos
-- Android Studio instalado (recomendado: versão estável atual).
-- SDK Platform Android 34 + Build-Tools instalados.
+- Android Studio instalado (versão estável atual).
+- SDK Platform Android 34 + Build-Tools.
 - Java 17 configurado.
-- `adb` disponível no PATH (Android Platform-Tools).
+- `adb` no PATH (Android Platform-Tools).
 
-## 2) Configuração inicial
-Neste MVP, a tela principal funciona como launcher interno por lista branca de apps.
+## 2) Build (debug)
+Na raiz do projeto, rode **um** dos comandos abaixo conforme seu terminal.
 
-## Comandos por sistema operacional
 ### Windows (PowerShell)
-Se aparecer erro `./gradlew não é reconhecido`, use:
-
 ```powershell
 .\gradlew.bat clean assembleDebug
 ```
@@ -27,10 +24,54 @@ gradlew.bat clean assembleDebug
 ./gradlew clean assembleDebug
 ```
 
-## Erro comum no Windows: `.\gradlew.bat` não reconhecido
-Quando esse erro aparece, normalmente o PowerShell não está na pasta raiz do projeto ou os arquivos do Gradle Wrapper não existem localmente.
+Saída esperada:
+- `app/build/outputs/apk/debug/app-debug.apk`
 
-Diagnóstico rápido (PowerShell):
+## 3) Instalação no tablet
+Com depuração USB habilitada:
+
+```bash
+adb devices
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+```
+
+## 4) Fluxo funcional para validar o MVP
+Após instalar e abrir o app:
+
+1. O aplicativo mostra o launcher interno (grade de apps da lista branca).
+2. No primeiro uso, aparece o diálogo para permitir execução em segundo plano.
+3. Abra configurações pelo ícone da toolbar (lado esquerdo):
+   - Se não existir PIN Admin, o app solicita criar um.
+   - Com PIN Admin configurado, o painel só abre com PIN correto.
+4. Configure os PINs:
+   - **PIN Admin**: protege configurações e saída manual do modo kiosk.
+   - **PIN Usuário**: exige autenticação quando o usuário retorna de app da lista branca para o kiosk.
+5. Adicione apps na lista branca e tente abrir:
+   - O app kiosk solta lock task localmente para permitir abrir o app externo.
+   - Ao voltar para o kiosk, lock task é reativado e o PIN Usuário é solicitado (se configurado).
+6. Teste o botão “Sair do modo kiosk”:
+   - Deve solicitar PIN Admin.
+
+## 5) Release (produção)
+1. Criar keystore (exemplo):
+
+```bash
+keytool -genkeypair -v -keystore botsandro-release.jks -alias botsandro -keyalg RSA -keysize 2048 -validity 3650
+```
+
+2. Configurar assinatura em `app/build.gradle.kts` (`signingConfigs`).
+3. Gerar APK release:
+
+```bash
+./gradlew clean assembleRelease
+```
+
+Saída esperada:
+- `app/build/outputs/apk/release/app-release.apk`
+
+## 6) Problemas comuns
+### `gradlew` / `gradlew.bat` não encontrado
+Verifique se você está na raiz do projeto e se os arquivos existem:
 
 ```powershell
 pwd
@@ -38,66 +79,8 @@ Get-ChildItem .\gradlew*
 Get-ChildItem .\gradle\wrapper
 ```
 
-Resultado esperado:
-- `gradlew.bat`
-- `gradlew`
-- `gradle\wrapper\gradle-wrapper.jar`
-- `gradle\wrapper\gradle-wrapper.properties`
+### App não consegue bloquear tudo (home/notificações/configurações rápidas)
+Isso é limitação de app comum Android. Bloqueio corporativo completo exige Device Owner/MDM com `DevicePolicyManager`.
 
-Se faltar algo:
-1. Navegue para a raiz do projeto `Botsandro`.
-2. Rode `git pull` para atualizar.
-3. Se você baixou por ZIP, baixe novamente garantindo que os arquivos do wrapper vieram.
-
-Com tudo presente, execute:
-
-```powershell
-.\gradlew.bat clean assembleDebug
-```
-
-## 3) Gerar APK de teste (debug)
-Na raiz do projeto:
-
-```bash
-./gradlew clean assembleDebug
-```
-
-Saída:
-- `app/build/outputs/apk/debug/app-debug.apk`
-
-## 4) Instalar no tablet
-Conecte por USB com depuração ativada e rode:
-
-```bash
-adb devices
-adb install -r app/build/outputs/apk/debug/app-debug.apk
-```
-
-## 5) Validar comportamento kiosk básico
-- App abre em launcher interno do kiosk.
-- Se não houver apps liberados, aparece estado vazio.
-- Painel lateral permite configurar PIN e lista branca.
-- Atalhos abrem somente os apps permitidos.
-
-## 6) Gerar APK de release (produção)
-1. Criar keystore:
-
-```bash
-keytool -genkeypair -v -keystore botsandro-release.jks -alias botsandro -keyalg RSA -keysize 2048 -validity 3650
-```
-
-2. Configurar assinatura no Gradle (bloco `signingConfigs`).
-3. Gerar APK:
-
-```bash
-./gradlew clean assembleRelease
-```
-
-Saída:
-- `app/build/outputs/apk/release/app-release.apk`
-
-## 7) Próximo nível de lockdown
-Para ficar no padrão “kiosk corporativo real” (tipo fast-food/self-service):
-- Provisionar tablet como Device Owner.
-- Aplicar políticas com `DevicePolicyManager`.
-- Definir launcher do kiosk e bloquear settings/home/recentes.
+### App da lista branca não abre
+No código atual, o kiosk chama `stopLockTaskIfActive()` antes de abrir app externo. Se ainda falhar no aparelho, valide política do fabricante/ROM e permissões do app alvo.
